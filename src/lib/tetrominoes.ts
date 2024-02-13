@@ -37,4 +37,13 @@ const iTetromino = [
 
 const tetrominoes = [lTetromino, zTetromino, tTetromino, oTetromino, iTetromino];
 
-export { tetrominoes };
+const upNextDisplayWidth = 4;
+const upNextTetrominoes = [
+    [1, upNextDisplayWidth+1, upNextDisplayWidth*2+1, 2],
+    [0, upNextDisplayWidth, upNextDisplayWidth+1, upNextDisplayWidth*2+1],
+    [1, upNextDisplayWidth, upNextDisplayWidth+1, upNextDisplayWidth+2],
+    [0, 1, upNextDisplayWidth, upNextDisplayWidth+1],
+    [1, upNextDisplayWidth+1, upNextDisplayWidth*2+1, upNextDisplayWidth*3+1]
+];
+
+export { tetrominoes, upNextTetrominoes};

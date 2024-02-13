@@ -1,23 +1,23 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { tetrominoes } from '$lib/tetrominoes';
+	import { tetrominoes, upNextTetrominoes } from '$lib/tetrominoes';
 
 	let board = $state(
 		Array(20)
 			.fill(0)
 			.map(() => Array(10).fill({ filled: false, color: 0 }))
 	);
-	let colors = ['', 'red', 'green', 'blue', 'purple', 'orange'];
+    let upNextBoard = $state(
+        Array(4)
+            .fill(0)
+            .map(() => Array(4).fill({ filled: false, color: 0 }))
+    );
+	
+    let colors = ['', 'red', 'green', 'blue', 'purple', 'orange'];
 
-<h1 class="text-3xl font-bold underline">Hello world!</h1>
-
-<style lang="postcss">
-	:global(html) {
-		background-color: theme(colors.gray.100);
-	}
-</style>
 	let currentPosition = 4;
 	let currentRotation = 0;
+    let nextTetromino = 0;
 
 	let randomTetromino = Math.floor(Math.random() * tetrominoes.length);
 	let currentTetromino = tetrominoes[randomTetromino][currentRotation];
@@ -46,6 +46,22 @@
         });
     }
 
+    function updateUpNextBoard() {
+        for (let i = 0; i < upNextBoard.length; i++) {
+            for (let j = 0; j < upNextBoard[i].length; j++) {
+                upNextBoard[i][j] = { filled: false, color: 0 };
+            }
+        }
+
+        upNextTetrominoes[nextTetromino].forEach(index => {            
+            let x = Math.floor(index / 4);
+            let y = index % 4;
+            if (upNextBoard[x]) {
+                upNextBoard[x][y] = { filled: true, color: nextTetromino + 1 };
+            }
+        });
+    }
+
     function freeze() {
         currentTetromino.forEach(index => {
             let x = Math.floor((currentPosition + index) / 10);
@@ -53,7 +69,9 @@
             board[x][y] = { filled: true, color: randomTetromino + 1 };
         });
 
-        randomTetromino = Math.floor(Math.random() * tetrominoes.length);
+        randomTetromino = nextTetromino;
+        nextTetromino = Math.floor(Math.random() * tetrominoes.length);
+        updateUpNextBoard();
         currentTetromino = tetrominoes[randomTetromino][currentRotation];
         currentPosition = 4;
     }
@@ -111,6 +129,9 @@
     }
 
 	onMount(() => {
+        nextTetromino = Math.floor(Math.random() * tetrominoes.length);
+        updateUpNextBoard();
+
 		// Make the tetromino move down every second
 		setInterval(moveDown, 1000);
 
@@ -138,11 +159,20 @@
 	});
 </script>
 
-
+<!-- Display the game board -->
 <div class="flex flex-wrap w-[200px] h-[400px] bg-yellow-300">
 	{#each board as row}
 		{#each row as cell}
 			<div class="w-5 h-5" style="background-color: {colors[cell.color]};"></div>
 		{/each}
 	{/each}
+</div>
+
+<!-- Display the next tetromino -->
+<div class="flex flex-wrap w-20 h-20 bg-yellow-300">
+    {#each upNextBoard as row}
+        {#each row as cell}
+            <div class="w-5 h-5" style="background-color: {colors[cell.color]};"></div>
+        {/each}
+    {/each}
 </div>
