@@ -18,6 +18,7 @@
 	let currentPosition = 4;
 	let currentRotation = 0;
     let nextTetromino = 0;
+    let timerId: number | null = null;
 
 	let randomTetromino = Math.floor(Math.random() * tetrominoes.length);
 	let currentTetromino = tetrominoes[randomTetromino][currentRotation];
@@ -53,7 +54,7 @@
             }
         }
 
-        upNextTetrominoes[nextTetromino].forEach(index => {            
+        upNextTetrominoes[nextTetromino].forEach(index => {
             let x = Math.floor(index / 4);
             let y = index % 4;
             if (upNextBoard[x]) {
@@ -128,13 +129,20 @@
         }
     }
 
+    function startPause() {
+        if (timerId) {
+            clearInterval(timerId);
+            timerId = null;
+        } else {
+            // Make the tetromino move down every second
+            draw();
+            timerId = setInterval(moveDown, 1000);
+            nextTetromino = Math.floor(Math.random() * tetrominoes.length);
+            updateUpNextBoard();
+        }
+    }
+
 	onMount(() => {
-        nextTetromino = Math.floor(Math.random() * tetrominoes.length);
-        updateUpNextBoard();
-
-		// Make the tetromino move down every second
-		setInterval(moveDown, 1000);
-
         window.addEventListener('keydown', (e) => {
             if (e.key === 'ArrowLeft') {
                 moveLeft();
@@ -158,6 +166,8 @@
         };
 	});
 </script>
+
+<button on:click={startPause}>Start/Pause</button>
 
 <!-- Display the game board -->
 <div class="flex flex-wrap w-[200px] h-[400px] bg-yellow-300">
